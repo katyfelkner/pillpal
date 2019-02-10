@@ -20,7 +20,7 @@ def sms_reply():
 
 def main():
     message = client.messages.create(body = "practice text", from_='+12029993074', to='+17033029984')
-    app.run(debug=True)
-
+    
 if __name__ == "__main__":
+    app.run(debug=True)
     main()
