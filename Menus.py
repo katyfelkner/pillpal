@@ -72,6 +72,8 @@ def remove_pill(person,body):
         message = client.messages.create(body=str(body+" was removed from your prescriptions"), from_=twil_num,
                                          to=person.number)
         person.uistate = 0
+        Person.to_file(person)
+        person.process_set_up()
         return True
     else:
         message = client.messages.create(body="I couldn't find that prescription. Check your spelling and try again, or send MENU to return to main menu", from_=twil_num,
@@ -95,6 +97,8 @@ def add_pill(person, body):
     message = message + ".\nPlease use HH:MM in 24 hour time, separated by commas.\n"
     message = message + "e.g. 08:00, 12:30, 17:00"
     message = client.messages.create(body = message, from_=twil_num, to= person.number)
+    Person.to_file(person)
+    person.process_set_up()
     return True
 
 def add_pill_times(person,body):
@@ -111,6 +115,8 @@ def add_pill_times(person,body):
     message = "New pill has been added."
     message = client.messages.create(body = message, from_=twil_num, to= person.number)
     person.pill_count += 1
+    Person.to_file(person)
+    person.process_set_up()
     return True
         
 def edit_premenu(person,body):
@@ -185,6 +191,8 @@ def edit_freq(person,body,pill_index):
         person.uistate = 0
         person.pillset[pill_index].freq = int(body)
         message = client.messages.create(body=str("I will now remind you every "+body+" minutes"),from_='twill_num',to=person.number)
+        Person.to_file(person)
+        person.process_set_up()
         return True
     else:
         message = client.messages.create(body=str("I don't know what you mean. Please send an integer between 0-59"),
@@ -226,3 +234,6 @@ def edit_times(person,body,pill_index):  #this method kind of sucks
             return False
     message = client.messages.create(body="Times have been updated", from_=twil_num,to=person.number)
     person.uistate = 0
+    Person.to_file(person)
+    person.process_set_up()
+    return True

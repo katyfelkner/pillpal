@@ -29,6 +29,9 @@ def sms_reply():
             # hard-coded - lazy
             people[k.replace(".txt", "")] = Person.from_file("testfamily/" + k)
     print(people)
+    for p in people:
+        people[p].process_set_up()
+        print(people[p])
     found = False
     for key,value in people.items():
         if num == key:
@@ -92,19 +95,6 @@ def sms_reply():
             
     print("returning ok from sms_reply()")
     return "Everything seems ok"
-
-def new_pill(): #TODO: needs some parameters
-    pid = os.fork()
-    # n greater than 0  means parent process
-    if pid > 0:
-        print("Parent process and id is : ", os.getpid())
-        print("just return from this call")
-        return
-
-    # n equals to 0 means child process
-    else:
-        print("Child process and id is : ", os.getpid()) 
-        print("this is where we start new scheduled reminder")
 
 def new_user(num):
     # make a file with number as the filename

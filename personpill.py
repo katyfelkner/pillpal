@@ -123,7 +123,7 @@ class Person:
         self.name = name
         self.pill_count = pill_count
         self.uistate = uistate
-        self.pillset = pillset
+        self.pillset = []
         self.processes = []
         self.number = number
         self.refill_day = refill_day
@@ -198,6 +198,7 @@ class Person:
             line = file.readline().strip()
             if 'END' in line:
                     break
+            print("made it to reading pills")
             fields = line.split(',')
             pill = Pill()
             pill.name = fields[0]
@@ -210,9 +211,10 @@ class Person:
             times = line.split(',')
             for time in times:
                 pill.add_time(time)
-            user.pill_count = len(user.pillset)
-            file.close()
-            return user
+            user.pillset.append(pill)
+        user.pill_count = len(user.pillset)
+        file.close()
+        return user
 
     @staticmethod
     def to_file(user):
@@ -260,7 +262,7 @@ class Person:
             for t in p.times:
                 print("scheduling for time: " + t)
                 # testing purposes only
-                schedule.every(10).seconds.do(self.pill_remind, pill=p)   
+                self.pill_remind(p)   
                 #schedule.every().day.at(t).do(pill_remind, pill=p, client=client)
                 
         while True:
@@ -271,12 +273,19 @@ class Person:
         print("inside the pill_remind function")
         def pill_text(pillName):
                 print("inside the pill_text function")
-                if (False): #sensor check here
-                        return schedule.CancelJob
+                sundaySensor = open("/sys/class/gpio/gpio36/value", mode = 'r')
+                saturdaySensor = open("/sys/class/gpio/gpio13/value", mode = 'r')
+                sundayValue = int(sundaySensor.read())
+                saturdayValue = int(saturdaySensor.read())
+                # code here to add sensors for other days and determine what day of week it is
+                print("sensor value is: " + str(saturdayValue))
+                if (saturdayValue == 1): #sensor check here
+                    message = "Great job taking your pills!"
+                    message = client.messages.create(body = message, from_=twil_num, to=self.number)
+                    return schedule.CancelJob
+                
                 message = "It's time to take " + pillName + "!"
                 message = client.messages.create(body = message, from_=twil_num, to= self.number)
-                return schedule.CancelJob
-
         print("scheduling pill texts")
         schedule.every(10).seconds.do(pill_text, pillName=pill.name)
         return None
